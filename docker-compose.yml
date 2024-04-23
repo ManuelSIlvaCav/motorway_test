@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  db:
+    image: motorway-test-db
+    container_name: motorway-test-db
+    build:
+      context: ./db
+      target: motorway-test-db
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    networks:
+      - mynet
+
+  server:
+    build:
+      context: ./server
+    container_name: motorway-test-server
+    hostname: motorway-test-server
+    env_file:
+      - .env
+    networks:
+      - mynet
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./server:/app
+
+networks:
+  mynet:
+    driver: bridge
